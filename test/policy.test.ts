@@ -14,7 +14,7 @@ describe('Policy (ported from execpolicy policy.rs)', () => {
     const p = new Policy();
     p.addPrefixRule({ first: 'npm', rest: [altsToken(['run','exec']), altsToken(['test','build'])], decision: 'Allow' });
     expect(p.check(['npm','run','test']).decision).toBe('Allow');
-    expect(p.check(['npm','exec','whatever']).decision).toBe('Allow');
+    expect(p.check(['npm','exec','build']).decision).toBe('Allow');
     expect(p.check(['npm','install']).decision).toBe('Prompt');
   });
   it('safest-first aggregation across multiple matches', () => {

@@ -53,19 +53,23 @@ function parseCalls(toks: string[]): RawCall[] {
   return calls;
 }
 
-function parseList(s: string): string[] {
-  const inner = s.slice(1, -1);
-  if (!inner.trim()) return [];
-  // strings were JSON.stringify'd by tokenizer; alts stay comma separated at top level
-  const parts: string[] = []; let cur=''; let inStr=false; let q='';
-  for (const ch of inner) {
+function splitTopLevel(s: string): string[] {
+  const parts: string[] = []; let cur=''; let inStr=false; let q=''; let depth=0;
+  for (const ch of s) {
     if (inStr) { cur+=ch; if (ch===q) inStr=false; continue; }
     if (ch==='"'||ch==="'"){ inStr=true; q=ch; cur+=ch; continue; }
-    if (ch===','){ parts.push(cur.trim()); cur=''; continue; }
+    if (ch==='['||ch==='('){ depth++; cur+=ch; continue; }
+    if (ch===']'||ch===')'){ depth--; cur+=ch; continue; }
+    if (ch===',' && depth===0){ parts.push(cur.trim()); cur=''; continue; }
     cur+=ch;
   }
   if (cur.trim()) parts.push(cur.trim());
   return parts.filter(Boolean);
+}
+
+function parseList(s: string): string[] {
+  if (s.startsWith('[')) return splitTopLevel(s.slice(1,-1)).map((x)=>x.trim()).filter(Boolean);
+  return [s];
 }
 
 export interface ParsedPolicy {
