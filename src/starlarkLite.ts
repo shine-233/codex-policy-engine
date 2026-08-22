@@ -42,7 +42,7 @@ function parseCalls(toks: string[]): RawCall[] {
       while (i < toks.length) {
         const t = toks[i];
         if (t === ')') { if (cur) args.push(cur); i++; break; }
-        if (t === ',') { if (cur) args.push(cur); cur=''; i++; continue; }
+        if (t === ',') { if (depth===0) { if (cur) args.push(cur); cur=''; } else { cur+=t; } i++; continue; }
         if (t === '[') { depth++; cur += t; i++; continue; }
         if (t === ']') { depth--; cur += t; i++; continue; }
         cur += t; i++;
