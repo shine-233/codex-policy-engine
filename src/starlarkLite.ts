@@ -82,7 +82,7 @@ export function parsePolicyFile(src: string): ParsedPolicy {
     if (call.fn === 'prefix_rule') {
       const [progRaw, listRaw, decRaw] = call.args;
       const program = JSON.parse(progRaw);
-      const items = splitTopLevel(listRaw);
+      const items = splitTopLevel(listRaw).filter((s) => s.length > 0);
       const tokens: PatternToken[] = items.map((item) => {
         const v = JSON.parse(item);
         return Array.isArray(v)
