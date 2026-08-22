@@ -89,9 +89,9 @@ export function parsePolicyFile(src: string): ParsedPolicy {
       const listRaw = parseList(call.args[1]);
       const tokens: PatternToken[] = listRaw.map((raw) => {
         const v = JSON.parse(raw);
-        return v.startsWith('[')
-          ? { kind:'Alts', values: parseList(v).map((x)=>JSON.parse(x)) }
-          : { kind:'Single', value:v };
+        if (Array.isArray(v)) return { kind:'Alts', values: v } as PatternToken;
+        if (typeof v === 'string') return { kind:'Single', value: v } as PatternToken;
+        throw new Error('bad token '+JSON.stringify(v));
       });
       const d = call.args[2];
       if (!isDecision(d)) throw new Error('bad decision '+d);
