@@ -53,23 +53,23 @@ function parseCalls(toks: string[]): RawCall[] {
   return calls;
 }
 
-function splitTopLevel(s: string): string[] {
-  const parts: string[] = []; let cur=''; let inStr=false; let q=''; let depth=0;
-  for (const ch of s) {
+function splitTopLevel(outer: string): string[] {
+  const parts: string[] = []; let cur=''; let depth=0; let inStr=false; let q='';
+  for (const ch of outer) {
     if (inStr) { cur+=ch; if (ch===q) inStr=false; continue; }
     if (ch==='"'||ch==="'"){ inStr=true; q=ch; cur+=ch; continue; }
-    if (ch==='['||ch==='('){ depth++; cur+=ch; continue; }
-    if (ch===']'||ch===')'){ depth--; cur+=ch; continue; }
-    if (ch===',' && depth===0){ parts.push(cur.trim()); cur=''; continue; }
+    if (ch==='['||ch==='('){ depth++; if(depth===1){cur=''; continue;} cur+=ch; continue; }
+    if (ch===']'||ch===')'){ depth--; if(depth===0){ parts.push(cur.trim()); continue; } cur+=ch; continue; }
+    if (ch===','&&depth===1){ parts.push(cur.trim()); cur=''; continue; }
     cur+=ch;
   }
-  if (cur.trim()) parts.push(cur.trim());
-  return parts.filter(Boolean);
+  return parts;
 }
 
 function parseList(s: string): string[] {
-  if (s.startsWith('[')) return splitTopLevel(s.slice(1,-1)).map((x)=>x.trim()).filter(Boolean);
-  return [s];
+  const t=s.trim();
+  if (t.startsWith('[')) return splitTopLevel(t);
+  return [t];
 }
 
 export interface ParsedPolicy {
